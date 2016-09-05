@@ -1,11 +1,13 @@
 package hk.legco.util;
 
+import hk.legco.object.MemberVoteStat;
 import hk.legco.object.Motion;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.net.MalformedURLException;
 
 import org.apache.logging.log4j.Logger;
@@ -18,26 +20,92 @@ public class Query
 {
 	int maxQueryRetryCount=10;
 	Logger logger=null;
-	String rootURL="http://app.legco.gov.hk/vrdb/odata/vVotingResult?";
+	String votingResultURL="http://app.legco.gov.hk/vrdb/odata/vVotingResult?";
 	public Query()
 	{
 		logger = LogManager.getLogger(this.getClass()); 
 		logger.debug("Log4j2 is ready.");
+	}
+	public HashMap <String,MemberVoteStat>getVoteStatByTermNo(int termNo) throws UnsupportedEncodingException, MalformedURLException, IOException, ParseException
+	{
+		int i,retryCount=0;
+		boolean finish=false;
+		String filterString,memberChiName;
+		JSONArray tempObj=new JSONArray();
+		JSONObject resultObj=null,memberVoteStatObj;
+		
+		MemberVoteStat memberVoteStat=new MemberVoteStat();
+		HashMap <String,MemberVoteStat>result=new HashMap <String,MemberVoteStat>();
+		if ((termNo>0) && (termNo<=Utility.getCurrentTermNo()))
+		{
+			filterString="$select=name_ch,vote&$orderby=vote_time+desc&$orderby=type,motion_ch&$inlinecount=allpages&$filter=";
+			filterString+=URLEncoder.encode("term_no eq "+termNo,"UTF-8");
+			filterString=votingResultURL+filterString;
+			while (!finish)
+			{
+				while ((tempObj.size()==0) && (retryCount<maxQueryRetryCount))
+				{
+					retryCount++;
+					resultObj=(JSONObject) Utility.query(logger,filterString);
+					tempObj=(JSONArray)resultObj.get("value");
+				}
+				for (i=0;i<tempObj.size();i++)
+				{
+					memberVoteStatObj=(JSONObject)tempObj.get(i);
+					memberChiName=(String)memberVoteStatObj.get("name_ch");
+					if (result.containsKey(memberChiName))
+					{
+						memberVoteStat=result.get(memberChiName);
+					}
+					else
+					{
+						memberVoteStat=new MemberVoteStat();
+					}
+					switch ((String)memberVoteStatObj.get("vote"))
+					{
+						case "Yes":memberVoteStat.setYesCount(memberVoteStat.getYesCount()+1);
+									break;
+						case "No":memberVoteStat.setNoCount(memberVoteStat.getNoCount()+1);
+									break;
+						case "Abstain":memberVoteStat.setAbstainCount(memberVoteStat.getAbstainCount()+1);
+										break;
+						case "Absent":memberVoteStat.setAbsentCount(memberVoteStat.getAbsentCount()+1);
+										break;
+						case "Present": memberVoteStat.setPresentCount(memberVoteStat.getPresentCount()+1);
+										break;
+					}
+					result.put(memberChiName, memberVoteStat);
+				}
+				if (resultObj.keySet().contains("odata.nextLink"))
+				{	
+					filterString=(String)resultObj.get("odata.nextLink");
+					retryCount=0;
+					tempObj=new JSONArray();
+				}
+				else
+					finish=true;
+			}
+			tempObj=null;
+			memberVoteStatObj=null;
+			resultObj=null;
+		}
+		return result;
 	}
 	public ArrayList<Motion> getMotionListByTermNo(int termNo) throws UnsupportedEncodingException, MalformedURLException, IOException, ParseException, java.text.ParseException 
 	{
 		Motion motion;
 		int i,retryCount=0;
 		boolean finish=false;
-		JSONObject resultObj=null,motionObj;
+		
 		JSONArray tempObj=new JSONArray();
+		JSONObject resultObj=null,motionObj;
 		String motionName,preMotionName="",filterString="";
 		ArrayList<Motion> result=new ArrayList<Motion>();
 		if ((termNo>0) && (termNo<=Utility.getCurrentTermNo()))
 		{	
 			filterString="$select=type,motion_ch,vote_date,vote_time&$orderby=vote_time+desc&$orderby=type,motion_ch&$inlinecount=allpages&$filter=";
 			filterString+=URLEncoder.encode("term_no eq "+termNo,"UTF-8");
-			filterString=rootURL+filterString;
+			filterString=votingResultURL+filterString;
 			while (!finish)
 			{
 				while ((tempObj.size()==0) && (retryCount<maxQueryRetryCount))
@@ -46,7 +114,6 @@ public class Query
 					resultObj=Utility.query(logger,filterString);
 					tempObj=(JSONArray) resultObj.get("value");
 				}
-				i=0;
 				for (i=0;i<tempObj.size();i++)
 				{
 					motionObj=(JSONObject) tempObj.get(i);			
@@ -90,6 +157,7 @@ public class Query
 		try 
 		{
 			q.getMotionListByTermNo(Utility.getCurrentTermNo());
+			q.getVoteStatByTermNo(Utility.getCurrentTermNo());
 		} 
 		catch (IOException | ParseException e) 
 		{
