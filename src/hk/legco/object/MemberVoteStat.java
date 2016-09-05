@@ -45,7 +45,7 @@ public class MemberVoteStat
 	{
 		this.absentCount = absentCount;
 	}
-	public float presentRate()
+	public float attendance()
 	{
 		float result;
 		totalCount=this.absentCount + this.abstainCount+this.noCount+this.presentCount+this.yesCount;
