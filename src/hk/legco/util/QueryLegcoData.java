@@ -16,12 +16,12 @@ import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.ParseException;
 
-public class Query 
+public class QueryLegcoData 
 {
 	int maxQueryRetryCount=10;
 	Logger logger=null;
 	String votingResultURL="http://app.legco.gov.hk/vrdb/odata/vVotingResult?";
-	public Query()
+	public QueryLegcoData()
 	{
 		logger = LogManager.getLogger(this.getClass()); 
 		logger.debug("Log4j2 is ready.");
@@ -153,7 +153,7 @@ public class Query
 	}
 	public static void main(String[] args) 
 	{
-		Query q=new Query();
+		QueryLegcoData q=new QueryLegcoData();
 		try 
 		{
 			q.getMotionListByTermNo(Utility.getCurrentTermNo());
