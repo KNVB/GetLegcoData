@@ -13,5 +13,7 @@
 	<classpathentry kind="lib" path="lib/httpcore-nio-4.4.5.jar"/>
 	<classpathentry kind="lib" path="lib/log4j-api-2.5.jar"/>
 	<classpathentry kind="lib" path="lib/log4j-core-2.5.jar"/>
+	<classpathentry kind="lib" path="lib/dropbox-core-sdk-1.8.2.jar"/>
+	<classpathentry kind="lib" path="lib/jackson-core-2.8.2.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
