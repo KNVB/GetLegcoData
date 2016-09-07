@@ -45,11 +45,49 @@ public class MemberVoteStat
 	{
 		this.absentCount = absentCount;
 	}
-	public float attendance()
+	public int getTotalCount()
+	{
+		return totalCount;
+	}
+	public float getYesRate() 
 	{
 		float result;
-		totalCount=this.absentCount + this.abstainCount+this.noCount+this.presentCount+this.yesCount;
+		result=(float)(this.yesCount)/(float)(totalCount);
+		return result;
+	}
+	public float getNoRate() 
+	{
+		float result;
+		result=(float)(this.noCount)/(float)(totalCount);
+		return result;
+	}
+	public float getPresentRate() 
+	{
+		float result;
+		result=(float)(this.presentCount)/(float)(totalCount);
+		return result;
+	}
+	public float getAbstainRate() 
+	{
+		float result;
+		result=(float)(this.abstainCount)/(float)(totalCount);
+		return result;
+	}
+	public float getAbsentRate() 
+	{
+		float result;
+		result=(float)(this.absentCount)/(float)(totalCount);
+		return result;
+	}	
+	public float getAttendance()
+	{
+		float result;
 		result=(float)(totalCount-this.absentCount)/(float)(totalCount);
 		return result;
+	}
+	 
+	public void calTotal() 
+	{
+		totalCount=this.absentCount + this.abstainCount+this.noCount+this.presentCount+this.yesCount;
 	}
 }

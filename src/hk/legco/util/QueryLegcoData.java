@@ -1,19 +1,20 @@
 package hk.legco.util;
 
-import hk.legco.object.MemberVoteStat;
+import hk.legco.object.LegcoException;
 import hk.legco.object.Motion;
+import hk.legco.object.MemberVoteStat;
 
+import java.util.HashMap;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.net.MalformedURLException;
+import java.io.UnsupportedEncodingException;
 
-import org.apache.logging.log4j.Logger;
-import org.apache.logging.log4j.LogManager;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 import org.json.simple.parser.ParseException;
 
 public class QueryLegcoData 
@@ -26,9 +27,9 @@ public class QueryLegcoData
 		logger = LogManager.getLogger(this.getClass()); 
 		logger.debug("Log4j2 is ready.");
 	}
-	public HashMap <String,MemberVoteStat>getVoteStatByTermNo(int termNo) throws UnsupportedEncodingException, MalformedURLException, IOException, ParseException
+	public HashMap <String,MemberVoteStat>getVoteStatByTermNo(int termNo) throws LegcoException
 	{
-		int i,retryCount=0;
+		int i,retryCount=0,totalRecordCount=0,currentRecordCount=0;
 		boolean finish=false;
 		String filterString,memberChiName;
 		JSONArray tempObj=new JSONArray();
@@ -36,58 +37,82 @@ public class QueryLegcoData
 		
 		MemberVoteStat memberVoteStat=new MemberVoteStat();
 		HashMap <String,MemberVoteStat>result=new HashMap <String,MemberVoteStat>();
-		if ((termNo>0) && (termNo<=Utility.getCurrentTermNo()))
+		try
 		{
-			filterString="$select=name_ch,vote&$orderby=vote_time+desc&$orderby=type,motion_ch&$inlinecount=allpages&$filter=";
-			filterString+=URLEncoder.encode("term_no eq "+termNo,"UTF-8");
-			filterString=votingResultURL+filterString;
-			while (!finish)
+			if ((termNo>0) && (termNo<=Utility.getCurrentTermNo()))
 			{
-				while ((tempObj.size()==0) && (retryCount<maxQueryRetryCount))
+				filterString="$select=name_ch,vote&$orderby=vote_time+desc&$orderby=type,motion_ch&$inlinecount=allpages&$filter=";
+				filterString+=URLEncoder.encode("term_no eq "+termNo,"UTF-8");
+				filterString=votingResultURL+filterString;
+				while (!finish)
 				{
-					retryCount++;
-					resultObj=(JSONObject) Utility.query(logger,filterString);
-					tempObj=(JSONArray)resultObj.get("value");
-				}
-				for (i=0;i<tempObj.size();i++)
-				{
-					memberVoteStatObj=(JSONObject)tempObj.get(i);
-					memberChiName=(String)memberVoteStatObj.get("name_ch");
-					if (result.containsKey(memberChiName))
+					while ((tempObj.size()==0) && (retryCount<maxQueryRetryCount))
 					{
-						memberVoteStat=result.get(memberChiName);
+						retryCount++;
+						resultObj=(JSONObject) Utility.query(logger,filterString);
+						tempObj=(JSONArray)resultObj.get("value");
+					}
+					currentRecordCount+=tempObj.size();
+					totalRecordCount=Integer.valueOf((String) resultObj.get("odata.count"));
+					for (i=0;i<tempObj.size();i++)
+					{
+						memberVoteStatObj=(JSONObject)tempObj.get(i);
+						memberChiName=(String)memberVoteStatObj.get("name_ch");
+						if (result.containsKey(memberChiName))
+						{
+							memberVoteStat=result.get(memberChiName);
+						}
+						else
+						{
+							memberVoteStat=new MemberVoteStat();
+						}
+						switch ((String)memberVoteStatObj.get("vote"))
+						{
+							case "Yes":memberVoteStat.setYesCount(memberVoteStat.getYesCount()+1);
+										break;
+							case "No":memberVoteStat.setNoCount(memberVoteStat.getNoCount()+1);
+										break;
+							case "Abstain":memberVoteStat.setAbstainCount(memberVoteStat.getAbstainCount()+1);
+											break;
+							case "Absent":memberVoteStat.setAbsentCount(memberVoteStat.getAbsentCount()+1);
+											break;
+							case "Present": memberVoteStat.setPresentCount(memberVoteStat.getPresentCount()+1);
+											break;
+						}					
+						result.put(memberChiName, memberVoteStat);
+					}
+					if (resultObj.keySet().contains("odata.nextLink"))
+					{	
+						filterString=(String)resultObj.get("odata.nextLink");
+						retryCount=0;
+						tempObj=new JSONArray();
 					}
 					else
-					{
-						memberVoteStat=new MemberVoteStat();
+					{	
+						finish=true;
 					}
-					switch ((String)memberVoteStatObj.get("vote"))
-					{
-						case "Yes":memberVoteStat.setYesCount(memberVoteStat.getYesCount()+1);
-									break;
-						case "No":memberVoteStat.setNoCount(memberVoteStat.getNoCount()+1);
-									break;
-						case "Abstain":memberVoteStat.setAbstainCount(memberVoteStat.getAbstainCount()+1);
-										break;
-						case "Absent":memberVoteStat.setAbsentCount(memberVoteStat.getAbsentCount()+1);
-										break;
-						case "Present": memberVoteStat.setPresentCount(memberVoteStat.getPresentCount()+1);
-										break;
-					}
-					result.put(memberChiName, memberVoteStat);
 				}
-				if (resultObj.keySet().contains("odata.nextLink"))
-				{	
-					filterString=(String)resultObj.get("odata.nextLink");
-					retryCount=0;
-					tempObj=new JSONArray();
+				tempObj=null;
+				memberVoteStatObj=null;
+				resultObj=null;
+				if ((totalRecordCount>0) && (totalRecordCount==currentRecordCount))
+				{
+					for (String key:result.keySet())
+					{
+						memberVoteStat=result.get(key);
+						memberVoteStat.calTotal();
+						result.put(key,memberVoteStat);
+					}
 				}
 				else
-					finish=true;
+					throw (new LegcoException("Cannot fetch all vote record."));
 			}
-			tempObj=null;
-			memberVoteStatObj=null;
-			resultObj=null;
+			else
+				throw (new LegcoException("Invalid Term No"));
+		}
+		catch (IOException| ParseException e)
+		{
+			throw (new LegcoException(e.getMessage()));
 		}
 		return result;
 	}
@@ -159,12 +184,9 @@ public class QueryLegcoData
 			q.getMotionListByTermNo(Utility.getCurrentTermNo());
 			q.getVoteStatByTermNo(Utility.getCurrentTermNo());
 		} 
-		catch (IOException | ParseException e) 
+		catch (IOException | LegcoException|ParseException | java.text.ParseException e) 
 		{
 			e.printStackTrace();
-		} catch (java.text.ParseException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		} 
 	}
 }
