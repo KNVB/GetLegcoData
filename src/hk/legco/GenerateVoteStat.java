@@ -13,7 +13,7 @@ import hk.legco.util.QueryLegcoData;
 import hk.legco.object.LegcoException;
 import hk.legco.object.MemberVoteStat;
 
-public class Main {
+public class GenerateVoteStat {
 
 	public static void main(String[] args)  
 	{
@@ -23,14 +23,15 @@ public class Main {
 		PrintWriter pw=null;
 		try 
 		{
-			pw=new PrintWriter(new OutputStreamWriter(new FileOutputStream("d:\\output.txt"), "UTF-8"));
 			result = query.getVoteStatByTermNo(Utility.getCurrentTermNo());
+			pw=new PrintWriter(new OutputStreamWriter(new FileOutputStream("d:\\output.txt"), "UTF-8"));
 			for (String memberChiName:result.keySet())
 			{
 				memberVoteStat=result.get(memberChiName);
 				pw.printf("%s\t%.3f\t%.3f\t%.3f\t%.3f\t%.3f\n",memberChiName,memberVoteStat.getYesRate(),memberVoteStat.getNoRate(),memberVoteStat.getAbstainRate(),memberVoteStat.getAbsentRate(),memberVoteStat.getAttendance());
 			}
 			pw.close();
+			
 		} 
 		catch (LegcoException | UnsupportedEncodingException | FileNotFoundException e) 
 		{

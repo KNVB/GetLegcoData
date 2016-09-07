@@ -105,7 +105,11 @@ public class QueryLegcoData
 					}
 				}
 				else
+				{	
+					result.clear();
+					result=null;
 					throw (new LegcoException("Cannot fetch all vote record."));
+				}
 			}
 			else
 				throw (new LegcoException("Invalid Term No"));

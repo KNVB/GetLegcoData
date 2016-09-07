@@ -1,10 +1,10 @@
 package hk.legco.util;
 
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.net.MalformedURLException;
 import java.util.Calendar;
+import java.io.InputStreamReader;
 import java.util.GregorianCalendar;
+import java.net.MalformedURLException;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.client.methods.HttpGet;
@@ -49,11 +49,14 @@ public class Utility
 			finally 
 			{
 			  response.close();
+			  response=null;
+			  httpget = null;
 			}
 		} 
 	    finally 
 	    {
-			    httpclient.close();
+	    	httpclient.close();
+	    	httpclient=null;
 		}		
 		return result;
 	}
@@ -122,10 +125,10 @@ public class Utility
 		}
 		return result;
 	}
-	public static void main(String[] args) 
+	/*public static void main(String[] args) 
 	{
 		System.out.println(Utility.getTermPeriod(6));
 		System.out.println(Utility.getCurrentTermNo());
 		System.out.println(Utility.getCurrentTermPeriod());
-	}
+	}*/
 }
