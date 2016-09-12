@@ -14,7 +14,6 @@ import java.io.UnsupportedEncodingException;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.apache.logging.log4j.Logger;
-import org.apache.logging.log4j.LogManager;
 import org.json.simple.parser.ParseException;
 
 public class QueryLegcoData 
@@ -22,10 +21,9 @@ public class QueryLegcoData
 	int maxQueryRetryCount=10;
 	Logger logger=null;
 	String votingResultURL="http://app.legco.gov.hk/vrdb/odata/vVotingResult?";
-	public QueryLegcoData()
+	public QueryLegcoData(Logger logger)
 	{
-		logger = LogManager.getLogger(this.getClass()); 
-		logger.debug("Log4j2 is ready.");
+		this.logger=logger;
 	}
 	public HashMap <String,MemberVoteStat>getVoteStatByTermNo(int termNo) throws LegcoException
 	{
@@ -180,7 +178,7 @@ public class QueryLegcoData
 		}
 		return result;
 	}
-	public static void main(String[] args) 
+	/*public static void main(String[] args) 
 	{
 		QueryLegcoData q=new QueryLegcoData();
 		try 
@@ -192,5 +190,5 @@ public class QueryLegcoData
 		{
 			e.printStackTrace();
 		} 
-	}
+	}*/
 }

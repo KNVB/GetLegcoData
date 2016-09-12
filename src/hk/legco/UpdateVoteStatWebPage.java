@@ -10,6 +10,12 @@ import java.io.PrintWriter;
 import java.io.FileOutputStream;
 import java.io.OutputStreamWriter;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
+import com.dropbox.core.DbxException;
+
+import hk.legco.util.DropBox;
 import hk.legco.util.Utility;
 import hk.legco.util.QueryLegcoData;
 import hk.legco.object.LegcoException;
@@ -19,21 +25,28 @@ public class UpdateVoteStatWebPage {
 
 	public static void main(String[] args)  
 	{
+		DropBox dropBox=null;
+		QueryLegcoData query;
 		Iterator<String> memberNameList;
 		MemberVoteStat memberVoteStat;
-		QueryLegcoData query=new QueryLegcoData();
+		Logger logger=null;
 		HashMap<String, MemberVoteStat> result;
+		String srcFileName, destPath="/";
 		String webFolderPath="D:\\Inetpub\\wwwroot\\legco\\",memberChiName;
-		String headerFileName="voteStatHead",outputTempFileName="output.txt",outputFileName="output.html";
+		String headerFileName="voteStatHead",outputFileName="output.html";
 		
 		PrintWriter pw=null;
 		try 
 		{
-			if (!Files.exists(Paths.get(outputFileName)))
+			logger = LogManager.getLogger(UpdateVoteStatWebPage.class); 
+			logger.debug("Log4j2 is ready.");
+			query=new QueryLegcoData(logger);
+			srcFileName=webFolderPath+outputFileName;
+			if (!Files.exists(Paths.get(srcFileName)))
 			{	
 				result = query.getVoteStatByTermNo(Utility.getCurrentTermNo());
-				Files.copy((new File(webFolderPath+headerFileName)).toPath(),(new File(webFolderPath+outputTempFileName)).toPath());
-				pw=new PrintWriter(new OutputStreamWriter(new FileOutputStream(webFolderPath+outputTempFileName,true), "UTF-8"));
+				Files.copy((new File(webFolderPath+headerFileName)).toPath(),(new File(srcFileName)).toPath());
+				pw=new PrintWriter(new OutputStreamWriter(new FileOutputStream(srcFileName,true), "UTF-8"));
 				pw.print("attendance={"+Utility.getCurrentTermNo()+":{");
 				memberNameList=result.keySet().iterator();
 				while (memberNameList.hasNext())
@@ -51,16 +64,21 @@ public class UpdateVoteStatWebPage {
 				pw.println("\t</body>");
 				pw.println("</html>");
 				pw.close();
+				dropBox=new DropBox(logger);
+				dropBox.upLoadFile(srcFileName, destPath, outputFileName);
 			}
 		} 
-		catch (LegcoException | IOException e) 
+		catch (LegcoException | IOException | DbxException e) 
 		{
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		}		
-		pw=null;
-		
-		query=null;
+		}
+		finally
+		{
+			dropBox=null;
+			pw=null;
+			query=null;
+		}
 	}
 
 }
