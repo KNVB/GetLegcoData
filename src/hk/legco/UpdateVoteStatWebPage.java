@@ -31,7 +31,7 @@ public class UpdateVoteStatWebPage {
 		MemberVoteStat memberVoteStat;
 		Logger logger=null;
 		HashMap<String, MemberVoteStat> result;
-		String srcFileName, destPath="/";
+		String srcFileName, destPath="/legco/";
 		String webFolderPath="D:\\Inetpub\\wwwroot\\legco\\",memberChiName;
 		String headerFileName="voteStatHead",outputFileName="output.html";
 		
@@ -42,7 +42,9 @@ public class UpdateVoteStatWebPage {
 			logger.debug("Log4j2 is ready.");
 			query=new QueryLegcoData(logger);
 			srcFileName=webFolderPath+outputFileName;
-			if (!Files.exists(Paths.get(srcFileName)))
+			if (Files.exists(Paths.get(srcFileName)))
+				logger.info(srcFileName + " exists");
+			else	
 			{	
 				result = query.getVoteStatByTermNo(Utility.getCurrentTermNo());
 				Files.copy((new File(webFolderPath+headerFileName)).toPath(),(new File(srcFileName)).toPath());
