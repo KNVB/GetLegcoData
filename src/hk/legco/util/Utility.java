@@ -7,16 +7,15 @@ import java.util.GregorianCalendar;
 import java.net.MalformedURLException;
 
 import org.apache.http.HttpEntity;
+import org.json.simple.JSONObject;
+import org.apache.logging.log4j.Logger;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.client.methods.CloseableHttpResponse;
 
-import org.apache.logging.log4j.Logger;
-
-import org.json.simple.JSONObject;
-import org.json.simple.parser.JSONParser;
-import org.json.simple.parser.ParseException;
 
 public class Utility 
 {
@@ -125,10 +124,10 @@ public class Utility
 		}
 		return result;
 	}
-	/*public static void main(String[] args) 
+	public static void main(String[] args) 
 	{
 		System.out.println(Utility.getTermPeriod(6));
 		System.out.println(Utility.getCurrentTermNo());
 		System.out.println(Utility.getCurrentTermPeriod());
-	}*/
+	}
 }
