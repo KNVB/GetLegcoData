@@ -1,25 +1,24 @@
 package hk.legco.util;
 
-import java.io.IOException;
 import java.util.Calendar;
-import java.io.InputStreamReader;
 import java.util.GregorianCalendar;
-import java.net.MalformedURLException;
 
-import org.apache.http.HttpEntity;
-import org.json.simple.JSONObject;
 import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
-import org.json.simple.parser.ParseException;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.HttpClients;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.client.methods.CloseableHttpResponse;
-
+import org.jsoup.Jsoup;
 
 public class Utility 
 {
-	public static JSONObject query(Logger logger,String urlString) throws MalformedURLException,IOException, ParseException
+	public static JSONObject query(Logger logger,String urlString) throws Exception
+	{
+		JSONObject result=null;
+		JSONParser jsonParser=new JSONParser(); 
+		result=(JSONObject)jsonParser.parse(Jsoup.connect(urlString).ignoreContentType(true).timeout(5000).get().text());
+		return result;
+	}
+	/*public static JSONObject query(Logger logger,String urlString) throws MalformedURLException,IOException, ParseException
 	{
 		JSONObject result=null;
 		JSONParser jsonParser=new JSONParser(); 
@@ -58,7 +57,7 @@ public class Utility
 	    	httpclient=null;
 		}		
 		return result;
-	}
+	}*/
 	public static int getCurrentTermNo()
 	{
 		int result=0;
@@ -124,8 +123,11 @@ public class Utility
 		}
 		return result;
 	}
-	public static void main(String[] args) 
+	public static void main(String[] args) throws Exception 
 	{
+		Logger logger = LogManager.getLogger(Utility.class); 
+		logger.debug("Log4j2 is ready.");
+		Utility.query(logger,"http://www.cm");
 		System.out.println(Utility.getTermPeriod(6));
 		System.out.println(Utility.getCurrentTermNo());
 		System.out.println(Utility.getCurrentTermPeriod());

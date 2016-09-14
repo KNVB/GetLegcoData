@@ -5,16 +5,14 @@ import hk.legco.object.Motion;
 import hk.legco.object.MemberVoteStat;
 
 import java.util.HashMap;
-import java.io.IOException;
+
 import java.net.URLEncoder;
 import java.util.ArrayList;
-import java.net.MalformedURLException;
-import java.io.UnsupportedEncodingException;
 
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.apache.logging.log4j.Logger;
-import org.json.simple.parser.ParseException;
+
 
 public class QueryLegcoData 
 {
@@ -47,6 +45,7 @@ public class QueryLegcoData
 					while ((tempObj.size()==0) && (retryCount<maxQueryRetryCount))
 					{
 						retryCount++;
+						logger.debug("filterString="+filterString);
 						resultObj=(JSONObject) Utility.query(logger,filterString);
 						tempObj=(JSONArray)resultObj.get("value");
 					}
@@ -112,13 +111,13 @@ public class QueryLegcoData
 			else
 				throw (new LegcoException("Invalid Term No"));
 		}
-		catch (IOException| ParseException e)
+		catch (Exception e)
 		{
 			throw (new LegcoException(e.getMessage()));
 		}
 		return result;
 	}
-	public ArrayList<Motion> getMotionListByTermNo(int termNo) throws UnsupportedEncodingException, MalformedURLException, IOException, ParseException, java.text.ParseException 
+	public ArrayList<Motion> getMotionListByTermNo(int termNo) throws Exception 
 	{
 		Motion motion;
 		int i,retryCount=0;
