@@ -4,14 +4,9 @@ import java.io.*;
 import java.util.Locale;
 
 public class DropBox_Sample {
-    public static void main(String[] args) throws IOException, DbxException {
-        // Get your app key and secret from the Dropbox developers website.
-        final String APP_KEY = "1drz1450rbvezat";
-        final String APP_SECRET = "h46xgodh3l74idy";
-
-        DbxAppInfo appInfo = new DbxAppInfo(APP_KEY, APP_SECRET);
-
-        DbxRequestConfig config = new DbxRequestConfig("JavaTutorial/1.0",Locale.getDefault().toString());
+    public static void main(String[] args) throws IOException, DbxException 
+    {
+       DbxRequestConfig config = new DbxRequestConfig("JavaTutorial/1.0",Locale.getDefault().toString());
        // DbxWebAuthNoRedirect webAuth = new DbxWebAuthNoRedirect(config, appInfo);
 
         // Have the user sign in and authorize your app.
