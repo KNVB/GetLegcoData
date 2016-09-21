@@ -11,9 +11,9 @@ import org.jsoup.select.Elements;
 
 public class ReadData {
 
-	public static void main(String[] args) 
+	/*public static void main(String[] args) 
 	{
-/*		Vector<String> memberDetailLinks=new Vector<String>();
+		Vector<String> memberDetailLinks=new Vector<String>();
 		String detailsClassName="bio-member-detail-1",memberName,strSQL=new String(),term="12-16";
 		String theURL = "http://www.legco.gov.hk/general/chinese/members/yr12-16/biographies.htm";
 		DbOp dbo=null;
@@ -37,8 +37,8 @@ public class ReadData {
 				tempElements=doc.select("div#container");
 				tempElements=tempElements.get(0).getElementsByTag("h2");
 				memberName=tempElements.get(0).text();
-				memberName=memberName.substring(0,memberName.indexOf("霅啣"));
-				tempElements=doc.select("strong:matchesOwn(��惇�踵祥�� \\:)");
+				memberName=memberName.substring(0,memberName.indexOf("議員"));
+				tempElements=doc.select("strong:matchesOwn(所屬政治團體 \\:)");
 				parentElement=tempElements.get(0).parent();
 				if(parentElement.childNodeSize()==1)
 				{
@@ -81,7 +81,7 @@ public class ReadData {
 				dbo=null;
 			}
 			
-		}*/
-	}
+		}
+	}*/
 
 }

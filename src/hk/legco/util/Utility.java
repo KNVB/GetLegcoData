@@ -1,63 +1,48 @@
 package hk.legco.util;
+import hk.legco.object.PoliticalAffiliation;
 
+import java.util.HashMap;
 import java.util.Calendar;
+import java.io.IOException;
 import java.util.GregorianCalendar;
 
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
-import org.jsoup.Jsoup;
 
 public class Utility 
 {
+	static int timeOut=5000;
 	public static JSONObject query(Logger logger,String urlString) throws Exception
 	{
 		JSONObject result=null;
 		JSONParser jsonParser=new JSONParser(); 
-		result=(JSONObject)jsonParser.parse(Jsoup.connect(urlString).ignoreContentType(true).timeout(5000).get().text());
+		result=(JSONObject)jsonParser.parse(Jsoup.connect(urlString).ignoreContentType(true).timeout(timeOut).get().text());
 		return result;
 	}
-	/*public static JSONObject query(Logger logger,String urlString) throws MalformedURLException,IOException, ParseException
+	public static Document getWebPage(String urlString) throws IOException
 	{
-		JSONObject result=null;
-		JSONParser jsonParser=new JSONParser(); 
-		CloseableHttpClient httpclient = HttpClients.createDefault();
-	    try 
-	    {
-	        HttpGet httpget = new HttpGet(urlString);
-
-	        logger.debug("Executing request " + httpget.getRequestLine());
-	        CloseableHttpResponse response = httpclient.execute(httpget);
-			try 
-			{
-				//System.out.println("----------------------------------------");
-				//System.out.println(response.getStatusLine());
-				
-				// Get hold of the response entity
-				HttpEntity entity = response.getEntity();
-				
-				// If the response does not enclose an entity, there is no need
-				// to bother about connection release
-				if (entity != null) 
-				{
-					result=(JSONObject)jsonParser.parse(new InputStreamReader(entity.getContent(),"UTF-8"));
-				} 
-			}
-			finally 
-			{
-			  response.close();
-			  response=null;
-			  httpget = null;
-			}
-		} 
-	    finally 
-	    {
-	    	httpclient.close();
-	    	httpclient=null;
-		}		
-		return result;
-	}*/
+		return Jsoup.connect(urlString).ignoreContentType(true).timeout(timeOut).get();
+	}
+	public static void addToMap(HashMap<String,PoliticalAffiliation> map,String key,String value)
+	{
+		PoliticalAffiliation pa;
+		if (map.containsKey(key))
+		{	
+			pa=map.get(key);
+			map.remove(key);
+		}
+		else
+		{	
+			pa=new PoliticalAffiliation();
+			pa.name=key;
+		}
+		pa.addMember(value);
+		map.put(key, pa);
+	}
 	public static int getCurrentTermNo()
 	{
 		int result=0;
