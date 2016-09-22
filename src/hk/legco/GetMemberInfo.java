@@ -10,22 +10,22 @@ import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
 
 import hk.legco.util.Utility;
-import hk.legco.object.Member;
+import hk.legco.object.MemberDetail;
 //政治團體 Political affiliation
 public class GetMemberInfo 
 {
 	String detailsClassName="bio-member-detail-1";
 	String memberInfoClassName="bio-member-info",photoClassName="bio-member-photo";
-	ArrayList<Member> memberList=new ArrayList<Member>();
+	ArrayList<MemberDetail> memberList=new ArrayList<MemberDetail>();
 	HashMap<String,HashMap<String,String>>paList=new HashMap<String,HashMap<String,String>>();
 
-	private Member getMemberDetail(Element info)
+	private MemberDetail getMemberDetail(Element info)
 	{
 		String temp;
 		Elements tempElements;
 		Element parentElement,ulElement;
 		  
-		Member m=new Member();
+		MemberDetail m=new MemberDetail();
 		m.photoLink=(info.getElementsByClass(photoClassName).select("img").get(0).absUrl("abs:src"));
 		try 
 		{
@@ -33,7 +33,7 @@ public class GetMemberInfo
 			tempElements=doc.select("div#container");
 			tempElements=tempElements.get(0).getElementsByTag("h2");
 			temp=tempElements.get(0).text();
-			m.name=temp.substring(0,temp.indexOf("議員"));
+			temp=temp.substring(0,temp.indexOf("議員"));
 			parentElement=doc.select("strong:matchesOwn(所屬政治團體 \\:)").get(0).parent();
 			
 			if(parentElement.childNodeSize()==1)
@@ -41,12 +41,12 @@ public class GetMemberInfo
 				ulElement=parentElement.nextElementSibling();
 				for (Element liElement : ulElement.getElementsByTag("li"))
 				{
-					Utility.addToMap(paList,liElement.text(),m);
+					Utility.addToMap(paList,liElement.text(),m,temp);
 				}
 			}
 			else
 			{
-				Utility.addToMap(paList,"無派別",m);
+				Utility.addToMap(paList,"無派別",m,temp);
 			}
 		}
 		catch (IOException e) 

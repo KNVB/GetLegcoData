@@ -1,6 +1,6 @@
 package hk.legco.util;
 
-import hk.legco.object.Member;
+import hk.legco.object.MemberDetail;
 
 import java.util.HashMap;
 import java.util.Calendar;
@@ -31,7 +31,7 @@ public class Utility
 	{
 		return Jsoup.connect(urlString).ignoreContentType(true).timeout(timeOut).get();
 	}
-	public static void addToMap(HashMap<String,HashMap<String,String>> map,String key,Member m) throws JsonProcessingException
+	public static void addToMap(HashMap<String,HashMap<String,String>> map,String key,MemberDetail m,String name) throws JsonProcessingException
 	{
 		HashMap<String,String> paList;
 		ObjectMapper mapper = new ObjectMapper();
@@ -44,7 +44,7 @@ public class Utility
 		{
 			paList=new HashMap<String,String>();
 		}
-		paList.put(m.name,mapper.writeValueAsString(m));
+		paList.put(name,mapper.writeValueAsString(m));
 		map.put(key, paList);			
 	}
 	public static int getCurrentTermNo()
