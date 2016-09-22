@@ -4,20 +4,20 @@ import java.util.HashMap;
 import java.util.ArrayList;
 import java.io.IOException;
 
+import org.json.simple.JSONObject;
 import org.jsoup.nodes.Element;
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
 
 import hk.legco.util.Utility;
 import hk.legco.object.Member;
-import hk.legco.object.PoliticalAffiliation;
-
+//政治團體 Political affiliation
 public class GetMemberInfo 
 {
 	String detailsClassName="bio-member-detail-1";
 	String memberInfoClassName="bio-member-info",photoClassName="bio-member-photo";
 	ArrayList<Member> memberList=new ArrayList<Member>();
-	HashMap<String,PoliticalAffiliation>paList=new HashMap<String,PoliticalAffiliation>();
+	HashMap<String,HashMap<String,String>>paList=new HashMap<String,HashMap<String,String>>();
 
 	private Member getMemberDetail(Element info)
 	{
@@ -41,12 +41,12 @@ public class GetMemberInfo
 				ulElement=parentElement.nextElementSibling();
 				for (Element liElement : ulElement.getElementsByTag("li"))
 				{
-					Utility.addToMap(paList,liElement.text(),m.name);
+					Utility.addToMap(paList,liElement.text(),m);
 				}
 			}
 			else
 			{
-				Utility.addToMap(paList,"無派別",m.name);
+				Utility.addToMap(paList,"無派別",m);
 			}
 		}
 		catch (IOException e) 
@@ -80,29 +80,29 @@ public class GetMemberInfo
 
 	public static void main(String[] args) 
 	{
-		String temp;
-		PoliticalAffiliation pa;
 		GetMemberInfo gl=new GetMemberInfo();
 		gl.go();
-		System.out.println(gl.memberList.size());
+		JSONObject paList=new JSONObject(gl.paList);
+		System.out.println(paList.toJSONString());
+		//System.out.println(gl.memberList.size());
 		
 		/*for (Member m:gl.memberList)
 		{
 			System.out.println(m.name);
 		}*/
-		System.out.println(gl.paList.size());
+		/*System.out.println(gl.paList.size());
 		for (String key:gl.paList.keySet())
 		{
 			pa=gl.paList.get(key);
 			temp="";
-			System.out.println(pa.name);
-			for (String memberName:pa.getMemberList())
+			System.out.println(key);
+			for (String memberName:pa)
 			{
 				temp=temp+memberName+",";
 			}
 			temp=temp.replaceAll(",$","\n");
 			System.out.println(temp+"===============================");
-		}
+		}*/
 	}
 
 	

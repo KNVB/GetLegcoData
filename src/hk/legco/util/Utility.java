@@ -1,5 +1,6 @@
 package hk.legco.util;
-import hk.legco.object.PoliticalAffiliation;
+
+import hk.legco.object.Member;
 
 import java.util.HashMap;
 import java.util.Calendar;
@@ -12,6 +13,9 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class Utility 
 {
@@ -27,21 +31,21 @@ public class Utility
 	{
 		return Jsoup.connect(urlString).ignoreContentType(true).timeout(timeOut).get();
 	}
-	public static void addToMap(HashMap<String,PoliticalAffiliation> map,String key,String value)
+	public static void addToMap(HashMap<String,HashMap<String,String>> map,String key,Member m) throws JsonProcessingException
 	{
-		PoliticalAffiliation pa;
+		HashMap<String,String> paList;
+		ObjectMapper mapper = new ObjectMapper();
 		if (map.containsKey(key))
-		{	
-			pa=map.get(key);
+		{
+			paList=map.get(key);
 			map.remove(key);
 		}
 		else
-		{	
-			pa=new PoliticalAffiliation();
-			pa.name=key;
+		{
+			paList=new HashMap<String,String>();
 		}
-		pa.addMember(value);
-		map.put(key, pa);
+		paList.put(m.name,mapper.writeValueAsString(m));
+		map.put(key, paList);			
 	}
 	public static int getCurrentTermNo()
 	{
