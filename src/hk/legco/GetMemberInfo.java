@@ -80,29 +80,38 @@ public class GetMemberInfo
 
 	public static void main(String[] args) 
 	{
+
 		GetMemberInfo gl=new GetMemberInfo();
 		gl.go();
-		JSONObject paList=new JSONObject(gl.paList);
-		System.out.println(paList.toJSONString());
-		//System.out.println(gl.memberList.size());
+		/*JSONObject paList=new JSONObject(gl.paList);
+		System.out.println(paList.toJSONString());*/
+		HashMap<String,String> memberList;
+		String temp;
+		StringBuilder resultBuilder=new StringBuilder(),tempBuilder;
 		
-		/*for (Member m:gl.memberList)
+		resultBuilder.append("{");
+		for (String paName:gl.paList.keySet())
 		{
-			System.out.println(m.name);
-		}*/
-		/*System.out.println(gl.paList.size());
-		for (String key:gl.paList.keySet())
-		{
-			pa=gl.paList.get(key);
-			temp="";
-			System.out.println(key);
-			for (String memberName:pa)
+			resultBuilder.append("\""+paName+"\":[");
+			memberList=gl.paList.get(paName);
+			tempBuilder=new StringBuilder();
+			for (String memberName:memberList.keySet())
 			{
-				temp=temp+memberName+",";
+				tempBuilder.append("\""+memberName+"\":"+memberList.get(memberName)+",");
 			}
-			temp=temp.replaceAll(",$","\n");
-			System.out.println(temp+"===============================");
-		}*/
+			temp=tempBuilder.toString();
+			temp=temp.substring(0,temp.length()-1);
+			temp=temp.replaceAll(",", ",\n");
+			resultBuilder.append(temp);
+			resultBuilder.append("],");
+		}
+		temp=resultBuilder.toString();
+		temp=temp.substring(0,temp.length()-1);
+		temp=temp.replaceAll("],","},\n");
+		temp=temp.replaceAll(":\\[",":{");
+		temp=temp.replaceAll("]","}");
+		temp+="}";
+		System.out.println(temp);
 	}
 
 	
