@@ -4,7 +4,6 @@ import java.util.HashMap;
 import java.util.ArrayList;
 import java.io.IOException;
 
-import org.json.simple.JSONObject;
 import org.jsoup.nodes.Element;
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
@@ -58,7 +57,14 @@ public class GetMemberInfo
 	}
 	private void go() 
 	{
-		String period=Utility.getCurrentTermPeriod().replaceAll("20", "");
+		String period,temp;
+		String[] periods=Utility.getCurrentTermPeriod().split("-");
+		temp=periods[0];
+		temp=temp.replaceFirst("20", "");
+		period=temp+"-";
+		temp=periods[1];
+		temp=temp.replaceFirst("20", "");
+		period=period+temp;
 		String memberBiographiesURL = "http://www.legco.gov.hk/general/chinese/members/yr"+period+"/biographies.htm";
 		try 
 		{
@@ -77,23 +83,17 @@ public class GetMemberInfo
 			e.printStackTrace();
 		}
 	}
-
-	public static void main(String[] args) 
+	public String getResultInJSONFormat()
 	{
-
-		GetMemberInfo gl=new GetMemberInfo();
-		gl.go();
-		/*JSONObject paList=new JSONObject(gl.paList);
-		System.out.println(paList.toJSONString());*/
+		this.go();
 		HashMap<String,String> memberList;
 		String temp;
 		StringBuilder resultBuilder=new StringBuilder(),tempBuilder;
-		
 		resultBuilder.append("{");
-		for (String paName:gl.paList.keySet())
+		for (String paName:this.paList.keySet())
 		{
 			resultBuilder.append("\""+paName+"\":[");
-			memberList=gl.paList.get(paName);
+			memberList=this.paList.get(paName);
 			tempBuilder=new StringBuilder();
 			for (String memberName:memberList.keySet())
 			{
@@ -111,7 +111,34 @@ public class GetMemberInfo
 		temp=temp.replaceAll(":\\[",":{");
 		temp=temp.replaceAll("]","}");
 		temp+="}";
-		System.out.println(temp);
+		return temp;
+	}
+	public String getResultInCSVFormat()
+	{
+		this.go();
+		HashMap<String,String> memberList;
+		StringBuilder resultBuilder=new StringBuilder(),tempBuilder;
+		for (String paName:this.paList.keySet())
+		{
+			resultBuilder.append(paName);
+			memberList=this.paList.get(paName);
+			tempBuilder=new StringBuilder();
+			for (String memberName:memberList.keySet())
+			{
+				tempBuilder.append(","+memberName+"\n");
+			}
+			resultBuilder.append(tempBuilder.toString());
+		}
+		return resultBuilder.toString();
+	}
+	public static void main(String[] args) 
+	{
+		GetMemberInfo gl=new GetMemberInfo();
+		String resultInCSVFormat=gl.getResultInCSVFormat();
+		System.out.println(resultInCSVFormat);
+		//String resultInJSONFormat=gl.getResultInJSONFormat();
+		//System.out.println(resultInJSONFormat);
+
 	}
 
 	
